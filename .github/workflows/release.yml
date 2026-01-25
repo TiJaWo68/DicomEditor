@@ -91,7 +91,7 @@ jobs:
             --type app-image `
             --name DicomEditor `
             --input target/ `
-            --main-jar dicomeditor-${{ env.VERSION }}-shaded.jar `
+            --main-jar dicomeditor-${{ env.VERSION }}.jar `
             --main-class de.in.dicom.tools.DicomEditor `
             --icon src/main/resources/DicomEditorIcon.ico `
             --dest dist-windows
