@@ -72,13 +72,29 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
         shell: bash
 
+      - name: Prepare Staging (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir staging
+          cp target/dicomeditor-${{ env.VERSION }}.jar staging/
+          cp -r target/lib staging/
+        shell: bash
+
+      - name: Prepare Staging (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          New-Item -ItemType Directory -Force -Path staging
+          Copy-Item "target\dicomeditor-${env:VERSION}.jar" -Destination staging\
+          Copy-Item -Recurse "target\lib" -Destination staging\
+        shell: pwsh
+
       - name: Run jpackage (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           jpackage \
             --type app-image \
             --name DicomEditor \
-            --input target/ \
+            --input staging/ \
             --main-jar dicomeditor-${{ env.VERSION }}.jar \
             --main-class de.in.dicom.tools.DicomEditor \
             --dest dist-linux
@@ -90,7 +106,7 @@ jobs:
           jpackage `
             --type app-image `
             --name DicomEditor `
-            --input target/ `
+            --input staging/ `
             --main-jar dicomeditor-${{ env.VERSION }}.jar `
             --main-class de.in.dicom.tools.DicomEditor `
             --icon src/main/resources/DicomEditorIcon.ico `
