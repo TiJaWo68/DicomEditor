@@ -79,7 +79,7 @@ jobs:
             --type app-image \
             --name DicomEditor \
             --input target/ \
-            --main-jar dicomeditor-${{ env.VERSION }}-shaded.jar \
+            --main-jar dicomeditor-${{ env.VERSION }}.jar \
             --main-class de.in.dicom.tools.DicomEditor \
             --dest dist-linux
           tar -czf ${{ matrix.artifact_name }}.tar.gz -C dist-linux DicomEditor
