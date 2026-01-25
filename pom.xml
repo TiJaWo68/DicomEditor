@@ -155,51 +155,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>launch4j</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.akathist.maven.plugins.launch4j</groupId>
-						<artifactId>launch4j-maven-plugin</artifactId>
-						<version>2.5.4</version>
-						<executions>
-							<execution>
-								<id>l4j-clui</id>
-								<phase>package</phase>
-								<goals>
-									<goal>launch4j</goal>
-								</goals>
-								<configuration>
-									<headerType>gui</headerType>
-									<jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
-									<outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-									<downloadUrl>https://adoptopenjdk.net/installation.html#x64_win-jre</downloadUrl>
-									<classPath>
-										<mainClass>de.in.dicom.tools.DicomEditor</mainClass>
-									</classPath>
-									<icon>src/main/resources/DicomEditorIcon.ico</icon>
-									<jre>
-										<path>.\jre</path>
-									</jre>
-									<versionInfo>
-										<copyright>2021 IN</copyright>
-										<fileVersion>1.0.0.0</fileVersion>
-										<txtFileVersion>${project.version}</txtFileVersion>
-										<fileDescription>${project.name}</fileDescription>
-										<productVersion>1.0.0.0</productVersion>
-										<txtProductVersion>${project.version}</txtProductVersion>
-										<productName>${project.name}</productName>
-										<internalName>${project.name}</internalName>
-										<originalFilename>${project.artifactId}.exe</originalFilename>
-									</versionInfo>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+
 </project>
