@@ -8,6 +8,14 @@
 
 	<repositories>
 		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>DCM4CHE</id>
+			<name>DCM4CHE</name>
+			<url>https://www.dcm4che.org/maven2/</url>
+		</repository>
+		<repository>
 			<id>github-utils</id>
 			<url>https://maven.pkg.github.com/TiJaWo68/utils</url>
 		</repository>
