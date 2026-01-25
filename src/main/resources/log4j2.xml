@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Properties>
+		<Property name="rollingFileName">${sys:user.home}/.dicomEditor/dicomEditor</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+		</Console>
+		<RollingFile name="rollingFile" fileName="${rollingFileName}.log" filePattern="${rollingFileName}_%d{yyyy-MM-dd}.log.zip">
+			<PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+			</Policies>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="rollingFile"/>
+		</Root>
+	</Loggers>
+</Configuration>

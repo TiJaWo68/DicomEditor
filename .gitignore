@@ -1,0 +1,9 @@
+/target/
+/log/
+/*.dcm
+/.settings
+/.project
+/.classpath
+/.agent
+/*.code-workspace
+/dependency-reduced-pom.xml

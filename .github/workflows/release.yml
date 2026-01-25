@@ -1,0 +1,114 @@
+name: Build and Release Native Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: dicomeditor-linux
+            bundle_extension: tar.gz
+          - os: windows-latest
+            artifact_name: dicomeditor-windows
+            bundle_extension: zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Create settings.xml for GitHub Packages
+        run: |
+          mkdir -p ~/.m2
+          cat <<EOF > ~/.m2/settings.xml
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+        shell: bash
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Prepare jpackage version
+        id: version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Run jpackage (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          jpackage \
+            --type app-image \
+            --name DicomEditor \
+            --input target/ \
+            --main-jar dicomeditor-${{ env.VERSION }}-shaded.jar \
+            --main-class de.in.dicom.tools.DicomEditor \
+            --dest dist-linux
+          tar -czf ${{ matrix.artifact_name }}.tar.gz -C dist-linux DicomEditor
+
+      - name: Run jpackage (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          jpackage `
+            --type app-image `
+            --name DicomEditor `
+            --input target/ `
+            --main-jar dicomeditor-${{ env.VERSION }}-shaded.jar `
+            --main-class de.in.dicom.tools.DicomEditor `
+            --icon src/main/resources/DicomEditorIcon.ico `
+            --dest dist-windows
+          Compress-Archive -Path dist-windows\DicomEditor -DestinationPath ${{ matrix.artifact_name }}.zip
+        shell: pwsh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_name }}.${{ matrix.bundle_extension }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dicomeditor-linux/dicomeditor-linux.tar.gz
+            dicomeditor-windows/dicomeditor-windows.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
