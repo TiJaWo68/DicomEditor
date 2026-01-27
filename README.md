@@ -8,6 +8,12 @@ A Java-based desktop application for viewing and editing DICOM metadata using th
 
 - **Metadata Inspection**: View all DICOM tags in a structured table.
 - **Tag Editing**: Easily modify, add, or delete DICOM attributes.
+- **Intelligent Insights**:
+  - Detailed Tag Information based on DICOM PS3.6.
+  - Interactive VR (Value Representation) explanations.
+  - Automated CodeString (CS) value decoding.
+  - UID status verification and identification.
+- **Enhanced Validation**: Real-time validation including Value Multiplicity (VM) compliance.
 - **Drag & Drop**: Simply drop DICOM files into the application to open them.
 - **Character Set Support**: Manage and set Specific Character Sets (e.g., ISO_IR 100, UTF-8).
 - **Modern UI**: Clean and dark interface powered by FlatLaf (Darcula).
@@ -26,7 +32,7 @@ Currently, the application can be built from source or run as a standalone JAR.
 1. Download the latest release (if available).
 2. Run the executable:
    ```bash
-   java -jar dicomeditor-0.0.1-shaded.jar
+   java -jar dicomeditor-0.1.0-shaded.jar
    ```
 
 ## User Guide
@@ -61,8 +67,8 @@ mvn clean package
 ```
 
 The resulting JAR will be located in the `target/` directory:
-- `dicomeditor-0.0.1.jar` (Standard JAR)
-- `dicomeditor-0.0.1-shaded.jar` (Fat JAR with all dependencies)
+- `dicomeditor-0.1.0.jar` (Standard JAR)
+- `dicomeditor-0.1.0-shaded.jar` (Fat JAR with all dependencies)
 
 ### Running in Development
 
