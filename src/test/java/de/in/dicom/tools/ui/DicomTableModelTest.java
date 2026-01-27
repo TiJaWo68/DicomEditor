@@ -127,13 +127,16 @@ public class DicomTableModelTest {
 
         assertTrue("Sequence not found", sqIndex != -1);
 
-        // Verify Length column (index 2) returns empty string for SQ
-        Object lengthValue = model.getValueAt(sqIndex, 2);
+        // Verify VR column (index 2) returns "SQ"
+        Object vrValue = model.getValueAt(sqIndex, 2);
+        assertEquals("SQ", vrValue);
+
+        // Verify Length column (index 3) returns empty string for SQ
+        Object lengthValue = model.getValueAt(sqIndex, 3);
         assertEquals("", lengthValue);
 
-        // Verify Content column (index 4) returns empty string for SQ (via
-        // DicomNode.formatValue)
-        Object contentValue = model.getValueAt(sqIndex, 4);
+        // Verify Content column (index 5) returns empty string for SQ
+        Object contentValue = model.getValueAt(sqIndex, 5);
         assertEquals("", contentValue);
     }
 
@@ -151,8 +154,8 @@ public class DicomTableModelTest {
             }
         }
         assertTrue("Private tag not found", row != -1);
-        assertEquals("Hello", model.getValueAt(row, 4));
-        assertTrue("Should be editable", model.isCellEditable(row, 4));
+        assertEquals("Hello", model.getValueAt(row, 5));
+        assertTrue("Should be editable", model.isCellEditable(row, 5));
     }
 
     @Test
@@ -170,9 +173,9 @@ public class DicomTableModelTest {
             }
         }
         assertTrue("Private tag not found", row != -1);
-        String hexValue = (String) model.getValueAt(row, 4);
+        String hexValue = (String) model.getValueAt(row, 5);
         assertTrue("Should be hex formatted", hexValue.startsWith("01 02 03"));
-        assertTrue("Should NOT be editable", !model.isCellEditable(row, 4));
+        assertTrue("Should NOT be editable", !model.isCellEditable(row, 5));
     }
 
     @Test
@@ -191,10 +194,10 @@ public class DicomTableModelTest {
             }
         }
         assertTrue("Public tag not found", row != -1);
-        String value = (String) model.getValueAt(row, 4);
+        String value = (String) model.getValueAt(row, 5);
         // Should be hex because it's public VR.UN
         assertTrue("Should be hex formatted", value.contains(" "));
-        assertTrue("Should NOT be editable", !model.isCellEditable(row, 4));
+        assertTrue("Should NOT be editable", !model.isCellEditable(row, 5));
     }
 
     @Test
@@ -210,7 +213,7 @@ public class DicomTableModelTest {
             }
         }
         assertTrue("PixelData not found", row != -1);
-        assertTrue("Should NOT be editable", !model.isCellEditable(row, 4));
+        assertTrue("Should NOT be editable", !model.isCellEditable(row, 5));
     }
 
     @Test
@@ -227,9 +230,100 @@ public class DicomTableModelTest {
             }
         }
 
-        model.setValueAt("NewValue", row, 4);
+        model.setValueAt("NewValue", row, 5);
 
-        assertEquals("NewValue", model.getValueAt(row, 4));
+        assertEquals("NewValue", model.getValueAt(row, 5));
         assertEquals("NewValue", attrs.getSpecificCharacterSet().decode(attrs.getBytes(privateTag), null));
+    }
+
+    @Test
+    public void testStatusColumnUIDInfo() {
+        attrs.setString(Tag.SOPClassUID, VR.UI, "1.2.840.10008.1.1");
+        model = new DicomTableModel(null, attrs);
+
+        int row = -1;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0).equals("0008,0016")) {
+                row = i;
+                break;
+            }
+        }
+        assertTrue("SOPClassUID not found", row != -1);
+        String status = (String) model.getValueAt(row, 4);
+        assertTrue("Status should contain UID info", status.startsWith("UID_INFO:"));
+        assertTrue("Status should contain 'Verification'", status.contains("Verification"));
+    }
+
+    @Test
+    public void testStatusColumnUnknownUIDInfo() {
+        attrs.setString(Tag.SOPClassUID, VR.UI, "1.2.3.4");
+        model = new DicomTableModel(null, attrs);
+
+        int row = -1;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0).equals("0008,0016")) {
+                row = i;
+                break;
+            }
+        }
+        assertTrue("SOPClassUID not found", row != -1);
+        String status = (String) model.getValueAt(row, 4);
+        assertEquals("Status should be empty for unknown UID", "", status);
+    }
+
+    @Test
+    public void testStatusColumnValidationAlert() {
+        // Invalid Date format
+        attrs.setString(Tag.StudyDate, VR.DA, "invalid-date");
+        model = new DicomTableModel(null, attrs);
+
+        int row = -1;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0).equals("0008,0020")) {
+                row = i;
+                break;
+            }
+        }
+        assertTrue("StudyDate not found", row != -1);
+        String status = (String) model.getValueAt(row, 4);
+        assertTrue("Status should contain validation alert", status.startsWith("VALIDATION_ALERT:"));
+    }
+
+    @Test
+    public void testStatusColumnCSInfo() {
+        attrs.setString(Tag.Modality, VR.CS, "CT");
+        model = new DicomTableModel(null, attrs);
+
+        int row = -1;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0).equals("0008,0060")) {
+                row = i;
+                break;
+            }
+        }
+        assertTrue("Modality not found", row != -1);
+        String status = (String) model.getValueAt(row, 4);
+        assertTrue("Status should contain CS info", status.startsWith("CS_INFO:"));
+        assertTrue("Status should contain 'Computed Tomography'", status.contains("Computed Tomography"));
+    }
+
+    @Test
+    public void testStatusColumnCSInfoMultiValue() {
+        attrs.setString(Tag.ImageType, VR.CS, "ORIGINAL\\PRIMARY\\AXIAL");
+        model = new DicomTableModel(null, attrs);
+
+        int row = -1;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0).equals("0008,0008")) {
+                row = i;
+                break;
+            }
+        }
+        assertTrue("ImageType not found", row != -1);
+        String status = (String) model.getValueAt(row, 4);
+        assertTrue("Status should contain CS info", status.startsWith("CS_INFO:"));
+        assertTrue("Status should contain 'ORIGINAL'", status.contains("ORIGINAL"));
+        assertTrue("Status should contain 'PRIMARY'", status.contains("PRIMARY"));
+        assertTrue("Status should contain 'AXIAL'", status.contains("AXIAL"));
     }
 }

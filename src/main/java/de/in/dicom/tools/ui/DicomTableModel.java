@@ -27,9 +27,9 @@ public class DicomTableModel extends AbstractTableModel {
 
     private DicomNode rootNode;
 
-    private static final String[] COLUMN_NAMES = { "Tag", "VR", "Length", "Name", "Content" };
+    private static final String[] COLUMN_NAMES = { "Tag", "Name", "VR", "Length", "ℹ", "Content" };
     private static final Class<?>[] COLUMN_CLASSES = { String.class, String.class, String.class, String.class,
-            Object.class };
+            String.class, Object.class };
 
     public DicomTableModel(Attributes fmi, Attributes attributes) {
         this.fmi = fmi;
@@ -129,8 +129,12 @@ public class DicomTableModel extends AbstractTableModel {
                     return "Item #" + (node.itemIndex + 1);
                 return TagUtils.toString(node.tag).replaceAll("[()]", "");
             case 1:
-                return node.vr != null ? node.vr.toString() : "";
+                if (node.tag == -1)
+                    return "";
+                return ElementDictionary.keywordOf(node.tag, null);
             case 2:
+                return node.vr != null ? node.vr.toString() : "";
+            case 3:
                 if (node.tag == -1)
                     return "";
                 try {
@@ -142,11 +146,30 @@ public class DicomTableModel extends AbstractTableModel {
                 } catch (Exception e) {
                     return "";
                 }
-            case 3:
-                if (node.tag == -1)
+            case 4: // Status
+                if (node.tag == -1 || node.isExpandable())
                     return "";
-                return ElementDictionary.keywordOf(node.tag, null);
-            case 4:
+                String val = node.formatValue();
+                TagInfoProvider.TagData tagData = TagInfoProvider.getTagData(node.tag);
+                String vm = (tagData != null) ? tagData.vm() : null;
+                DicomValidator.ValidationResult result = DicomValidator.validate(node.tag, node.vr, vm, val);
+                if (result.isError() || result.isWarning()) {
+                    return "VALIDATION_ALERT:" + result.message;
+                }
+                if (node.vr == VR.UI && val != null && !val.isEmpty()) {
+                    String uidName = org.dcm4che3.data.UID.nameOf(val);
+                    if (uidName != null && !uidName.equals(val) && !uidName.equals("?")) {
+                        return "UID_INFO:" + uidName;
+                    }
+                }
+                if (node.vr == VR.CS && val != null && !val.isEmpty()) {
+                    String csInfo = CSInfoProvider.getDescription(node.tag, val);
+                    if (csInfo != null) {
+                        return csInfo;
+                    }
+                }
+                return "";
+            case 5: // Content
                 if (node.isExpandable())
                     return "";
                 return node.formatValue();
@@ -157,7 +180,7 @@ public class DicomTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex == 4) {
+        if (columnIndex == 5) {
             DicomNode node = visibleNodes.get(rowIndex);
             return !node.isExpandable() && node.tag != -1 && !node.isHexDisplayed();
         }
@@ -166,11 +189,13 @@ public class DicomTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 4) {
+        if (columnIndex == 5) {
             DicomNode node = visibleNodes.get(rowIndex);
             String strValue = (aValue != null) ? aValue.toString() : "";
 
-            DicomValidator.ValidationResult result = DicomValidator.validate(node.tag, node.vr, strValue);
+            TagInfoProvider.TagData tagData = TagInfoProvider.getTagData(node.tag);
+            String vm = (tagData != null) ? tagData.vm() : null;
+            DicomValidator.ValidationResult result = DicomValidator.validate(node.tag, node.vr, vm, strValue);
 
             if (result.isError()) {
                 javax.swing.JOptionPane.showMessageDialog(null, result.message, "Validation Error",
@@ -348,7 +373,11 @@ public class DicomTableModel extends AbstractTableModel {
                         return "";
                     return attributes.getSpecificCharacterSet().decode(b, null);
                 }
-                return attributes.getString(tag);
+                String[] vals = attributes.getStrings(tag);
+                if (vals == null || vals.length == 0) {
+                    return "";
+                }
+                return String.join("\\", vals);
             } catch (Exception e) {
                 return "Error";
             }
