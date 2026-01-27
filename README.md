@@ -2,7 +2,13 @@
 
 A Java-based desktop application for viewing and editing DICOM metadata using the [dcm4che](https://github.com/dcm4che/dcm4che) library.
 
-![DicomEditor Screenshot](src/main/resources/DicomEditorIcon.ico) (Placeholder for UI screenshot)
+
+<p align="center">
+  <img src="docs/screenshots/main_view.png" alt="DicomEditor Main View" width="800"/>
+</p>
+<p align="center">
+  <img src="docs/screenshots/code_string_info.png" alt="Code String Explanation" width="800"/>
+</p>
 
 ## Features
 
