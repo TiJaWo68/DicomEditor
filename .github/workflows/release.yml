@@ -62,8 +62,17 @@ jobs:
           EOF
         shell: bash
 
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
+      - name: Build with Maven (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          xvfb-run mvn clean package
+        shell: bash
+
+      - name: Build with Maven (Windows)
+        if: matrix.os == 'windows-latest'
+        run: mvn clean package
 
       - name: Prepare jpackage version
         id: version
