@@ -22,7 +22,7 @@ import java.awt.event.KeyEvent;
 public class QuickGuideDialog extends JDialog {
 
     public QuickGuideDialog(JFrame parent) {
-        super(parent, "Kurzanleitung", true);
+        super(parent, "Quick Guide", true);
         setLayout(new BorderLayout());
         setSize(600, 500);
         setLocationRelativeTo(parent);
@@ -35,30 +35,30 @@ public class QuickGuideDialog extends JDialog {
         editorPane.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
         String content = "<html><body style='font-family: sans-serif; padding: 10px;'>"
-                + "<h2>Schnellstart</h2>"
-                + "<p>Willkommen im DicomEditor. Hier sind die wichtigsten Funktionen im Überblick:</p>"
+                + "<h2>Quick Start</h2>"
+                + "<p>Welcome to DicomEditor. Here's an overview of the key features:</p>"
 
-                + "<h3>📂 Dateien öffnen</h3>"
+                + "<h3>📂 Opening Files</h3>"
                 + "<ul>"
-                + "<li>Nutzen Sie <b>Datei > Öffnen</b> im Menü.</li>"
-                + "<li>Oder ziehen Sie eine DICOM-Datei einfach per <b>Drag & Drop</b> in das Fenster.</li>"
+                + "<li>Use <b>File > Open</b> in the menu.</li>"
+                + "<li>Or simply <b>Drag & Drop</b> a DICOM file into the window.</li>"
                 + "</ul>"
 
-                + "<h3>✏️ Attribute bearbeiten</h3>"
+                + "<h3>✏️ Editing Attributes</h3>"
                 + "<ul>"
-                + "<li><b>Doppelklick</b> auf einen Wert in der Tabelle, um ihn zu bearbeiten.</li>"
-                + "<li><b>Rechtsklick</b> auf die Tabelle öffnet das Kontextmenü (Tag hinzufügen/löschen).</li>"
+                + "<li><b>Double-click</b> a value in the table to edit it.</li>"
+                + "<li><b>Right-click</b> the table to open the context menu (Add/Delete Tag).</li>"
                 + "</ul>"
 
-                + "<h3>💾 Speichern</h3>"
+                + "<h3>💾 Saving</h3>"
                 + "<ul>"
-                + "<li><b>Datei > Speichern</b> überschreibt die aktuelle Datei.</li>"
-                + "<li><b>Datei > Speichern unter...</b> erstellt eine neue Datei.</li>"
+                + "<li><b>File > Save</b> overwrites the current file.</li>"
+                + "<li><b>File > Save As...</b> creates a new file.</li>"
                 + "</ul>"
 
-                + "<h3>🔤 Zeichensätze</h3>"
+                + "<h3>🔤 Character Sets</h3>"
                 + "<ul>"
-                + "<li>Unter <b>Bearbeiten > Specific Character Set</b> können Sie das Encoding ändern (z.B. ISO_IR 100).</li>"
+                + "<li>Under <b>Edit > Specific Character Set</b>, you can change the encoding (e.g., ISO_IR 100).</li>"
                 + "</ul>"
 
                 + "</body></html>";
@@ -72,7 +72,7 @@ public class QuickGuideDialog extends JDialog {
 
         // Close Button
         JPanel buttonPanel = new JPanel();
-        JButton closeButton = new JButton("Schließen");
+        JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
         buttonPanel.add(closeButton);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

@@ -43,7 +43,7 @@ public class AboutDialog extends JDialog {
     private final List<JButton> sidebarButtons = new ArrayList<>();
 
     public AboutDialog(JFrame parent) {
-        super(parent, "Über DicomEditor", true);
+        super(parent, "About DicomEditor", true);
         setLayout(new BorderLayout());
         setSize(800, 500);
         setLocationRelativeTo(parent);
@@ -62,8 +62,8 @@ public class AboutDialog extends JDialog {
         contentCardPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         // Add Sections
-        addSection(sidebarPanel, "Allgemein", createGeneralPanel());
-        addSection(sidebarPanel, "Bibliotheken", createLibrariesPanel());
+        addSection(sidebarPanel, "General", createGeneralPanel());
+        addSection(sidebarPanel, "Libraries", createLibrariesPanel());
 
         sidebarPanel.add(Box.createVerticalGlue());
 
@@ -75,7 +75,7 @@ public class AboutDialog extends JDialog {
         add(splitPane, BorderLayout.CENTER);
 
         // Close Button at bottom
-        JButton closeButton = new JButton("Schließen");
+        JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(closeButton);
@@ -145,7 +145,7 @@ public class AboutDialog extends JDialog {
             panel.add(splashLabel);
             panel.add(Box.createVerticalStrut(20));
         } catch (Exception e) {
-            JLabel errorLabel = new JLabel("[Splash-Image konnte nicht geladen werden]");
+            JLabel errorLabel = new JLabel("[Splash image could not be loaded]");
             errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             panel.add(errorLabel);
         }
@@ -174,7 +174,7 @@ public class AboutDialog extends JDialog {
     private JPanel createLibrariesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel header = new JLabel("Verwendete Bibliotheken");
+        JLabel header = new JLabel("Libraries Used");
         header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
         header.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
         panel.add(header, BorderLayout.NORTH);
@@ -190,8 +190,8 @@ public class AboutDialog extends JDialog {
         }
 
         if (libs.isEmpty()) {
-            listPanel.add(new JLabel("Keine Lizenzinformationen gefunden (licenses.xml fehlt)."));
-            listPanel.add(new JLabel("Bitte führen Sie 'mvn generate-resources' aus."));
+            listPanel.add(new JLabel("No license information found (licenses.xml missing)."));
+            listPanel.add(new JLabel("Please run 'mvn generate-resources'."));
         }
 
         JScrollPane scrollPane = new JScrollPane(listPanel);
@@ -236,7 +236,7 @@ public class AboutDialog extends JDialog {
         // License Link
         JLabel licenseLabel = new JLabel();
         if (licenseUrl != null && !licenseUrl.isEmpty()) {
-            licenseLabel.setText("<html>Lizenz: <a href='" + licenseUrl
+            licenseLabel.setText("<html>License: <a href='" + licenseUrl
                     + "' style='color: #58a6ff; text-decoration: none;'>" + license + "</a></html>");
             licenseLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
             licenseLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -246,7 +246,7 @@ public class AboutDialog extends JDialog {
                 }
             });
         } else {
-            licenseLabel.setText("Lizenz: " + license);
+            licenseLabel.setText("License: " + license);
         }
         licenseLabel.setFont(licenseLabel.getFont().deriveFont(12f));
         licenseLabel.setForeground(Color.GRAY);

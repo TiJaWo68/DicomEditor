@@ -65,22 +65,22 @@ public class HelpActions {
                 } else {
                     LOGGER.info("No update found.");
                     SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(parentFrame,
-                            "Ihre Version " + currentVersion + " ist aktuell.", "Kein Update verfügbar",
+                            "Your version " + currentVersion + " is up to date.", "No update available",
                             JOptionPane.INFORMATION_MESSAGE));
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to check for updates", e);
                 SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(parentFrame,
-                        "Fehler bei der Update-Prüfung: " + e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE));
+                        "Error checking for updates: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE));
             }
         });
     }
 
     private void showUpdateDialog(String newVersion) {
         int option = JOptionPane.showConfirmDialog(parentFrame,
-                "Eine neue Version von DicomEditor ist verfügbar: " + newVersion
-                        + "\n\nMöchten Sie zur Download-Seite auf GitHub wechseln?",
-                "Update verfügbar", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                "A new version of DicomEditor is available: " + newVersion
+                        + "\n\nWould you like to go to the download page on GitHub?",
+                "Update Available", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
 
         if (option == JOptionPane.OK_OPTION) {
             openUrl("https://github.com/TiJaWo68/dicomeditor/releases");
@@ -97,7 +97,7 @@ public class HelpActions {
                 Desktop.getDesktop().browse(new URI(url));
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(parentFrame, "Fehler beim Öffnen der Webseite: " + ex.getMessage(), "Fehler",
+            JOptionPane.showMessageDialog(parentFrame, "Error opening website: " + ex.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
