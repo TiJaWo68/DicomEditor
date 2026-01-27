@@ -2,6 +2,7 @@ package de.in.dicom.tools;
 
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
@@ -72,6 +73,11 @@ public class DicomEditorFrame extends JFrame {
 
 		addWindowListener(new WindowAdapter() {
 			@Override
+			public void windowClosing(WindowEvent e) {
+				Settings.setWindowBounds(getBounds());
+			}
+
+			@Override
 			public void windowClosed(WindowEvent e) {
 				if (JFrame.getFrames().length == 0) {
 					System.exit(0);
@@ -79,14 +85,21 @@ public class DicomEditorFrame extends JFrame {
 			}
 		});
 
-		setPreferredSize(new Dimension(800, 1024));
-		pack();
+		Rectangle savedBounds = Settings.getWindowBounds();
+		if (savedBounds != null) {
+			setBounds(savedBounds);
+		} else {
+			setPreferredSize(new Dimension(800, 1024));
+			pack();
+		}
 	}
 
 	public DicomEditorFrame(File file, Attributes fmi, Attributes dicom) throws HeadlessException {
 		this();
 		addTable(file, fmi, dicom);
-		pack();
+		if (Settings.getWindowBounds() == null) {
+			pack();
+		}
 	}
 
 	private void initMenu() {
@@ -101,9 +114,12 @@ public class DicomEditorFrame extends JFrame {
 	}
 
 	public void openFile() {
-		JFileChooser fc = new JFileChooser();
+		String lastPath = Settings.getLastPath();
+		JFileChooser fc = new JFileChooser(lastPath != null ? lastPath : ".");
 		if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			new LoadWorker(fc.getSelectedFile(), this).execute();
+			File selectedFile = fc.getSelectedFile();
+			Settings.setLastPath(selectedFile.getParent());
+			new LoadWorker(selectedFile, this).execute();
 		}
 	}
 
@@ -113,11 +129,14 @@ public class DicomEditorFrame extends JFrame {
 
 		File target = file;
 		if (saveAs || target == null) {
-			JFileChooser fc = new JFileChooser(file != null ? file.getParentFile() : null);
+			String lastPath = Settings.getLastPath();
+			JFileChooser fc = new JFileChooser(
+					file != null ? file.getParentFile() : (lastPath != null ? new File(lastPath) : null));
 			if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
 			target = fc.getSelectedFile();
+			Settings.setLastPath(target.getParent());
 		}
 
 		try (DicomOutputStream dos = new DicomOutputStream(target)) {
@@ -161,7 +180,7 @@ public class DicomEditorFrame extends JFrame {
 		new LoadWorker(file, this).execute();
 	}
 
-	private static class LoadResult {
+	static class LoadResult {
 		File file;
 		Attributes fmi;
 		Attributes dicom;
@@ -170,6 +189,15 @@ public class DicomEditorFrame extends JFrame {
 			this.file = file;
 			this.fmi = fmi;
 			this.dicom = dicom;
+		}
+	}
+
+	public static LoadResult loadDicom(File file) throws Exception {
+		if (!file.canRead()) {
+			throw new IOException("Cannot read file: " + file.getPath());
+		}
+		try (DicomInputStream dis = new DicomInputStream(file)) {
+			return new LoadResult(file, dis.readFileMetaInformation(), dis.readDataset());
 		}
 	}
 
@@ -184,37 +212,42 @@ public class DicomEditorFrame extends JFrame {
 
 		@Override
 		protected LoadResult doInBackground() throws Exception {
-			if (!file.canRead()) {
-				throw new IOException("Cannot read file: " + file.getPath());
-			}
-			try (DicomInputStream dis = new DicomInputStream(file)) {
-				return new LoadResult(file, dis.readFileMetaInformation(), dis.readDataset());
-			}
+			return loadDicom(file);
 		}
 
 		@Override
 		protected void done() {
 			try {
 				LoadResult result = get();
-				if (frame != null) {
-					if (frame.getContentPane().getComponentCount() > 0) {
-						frame.getContentPane().removeAll();
-					}
-					frame.addTable(result.file, result.fmi, result.dicom);
-					frame.revalidate();
-					frame.repaint();
-				} else {
-					DicomEditorFrame newFrame = new DicomEditorFrame(result.file, result.fmi, result.dicom);
-					newFrame.setVisible(true);
+				if (frame.getContentPane().getComponentCount() > 0) {
+					frame.getContentPane().removeAll();
 				}
+				frame.addTable(result.file, result.fmi, result.dicom);
+				frame.revalidate();
+				frame.repaint();
 			} catch (Exception ex) {
 				LOGGER.warn("could not create editor for " + file.getPath(), ex);
 			}
 		}
 	}
 
-	public static void createFrame(File file) {
-		new LoadWorker(file, null).execute();
+	/**
+	 * Creates a frame synchronously. Useful for startup or when already on a
+	 * background thread.
+	 * 
+	 * @param file the DICOM file to load
+	 * @return the created frame, or null if loading failed
+	 */
+	public static DicomEditorFrame createFrameSync(File file) {
+		try {
+			LoadResult result = loadDicom(file);
+			DicomEditorFrame newFrame = new DicomEditorFrame(result.file, result.fmi, result.dicom);
+			newFrame.setVisible(true);
+			return newFrame;
+		} catch (Exception ex) {
+			LOGGER.warn("could not create editor for " + file.getPath(), ex);
+			return null;
+		}
 	}
 
 	/**
@@ -229,10 +262,15 @@ public class DicomEditorFrame extends JFrame {
 		setTitle("DicomEditor : " + (file != null ? file.getName() : "New"));
 
 		if (dicom != null) {
+			if (getContentPane().getComponentCount() > 0) {
+				getContentPane().removeAll();
+			}
 			table = new DicomTable(new DicomTableModel(fmi, dicom));
 			JScrollPane sp = new JScrollPane(table);
 			add(sp);
 			createContextMenu();
+			revalidate();
+			repaint();
 		}
 	}
 

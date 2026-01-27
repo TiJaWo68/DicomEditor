@@ -56,8 +56,8 @@ public class DicomEditorMenu extends JMenuBar {
         // Right alignment for Help menu
         add(Box.createHorizontalGlue());
 
-        JMenu helpMenu = new JMenu("Hilfe");
-        JMenuItem quickGuideItem = new JMenuItem("Kurzanleitung");
+        JMenu helpMenu = new JMenu("Help");
+        JMenuItem quickGuideItem = new JMenuItem("Quick Guide");
         quickGuideItem.addActionListener(e -> helpActions.openQuickGuide());
         helpMenu.add(quickGuideItem);
 
@@ -67,7 +67,7 @@ public class DicomEditorMenu extends JMenuBar {
 
         helpMenu.addSeparator();
 
-        JMenuItem aboutItem = new JMenuItem("Über DicomEditor");
+        JMenuItem aboutItem = new JMenuItem("About DicomEditor");
         aboutItem.addActionListener(e -> helpActions.openAboutDialog());
         helpMenu.add(aboutItem);
 
