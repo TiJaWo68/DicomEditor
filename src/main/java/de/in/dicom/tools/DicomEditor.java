@@ -1,7 +1,6 @@
 package de.in.dicom.tools;
 
 import java.awt.EventQueue;
-import java.awt.Window;
 import java.io.File;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,11 +25,16 @@ public class DicomEditor {
 		Log4jTools.logEnvironment(LOGGER);
 		EventQueue.invokeLater(() -> {
 			FlatDarculaLaf.setup();
-			for (String filename : args) {
-				File file = new File(filename);
-				DicomEditorFrame.createFrame(file);
+			int windowsOpened = 0;
+			if (args.length > 0) {
+				for (String filename : args) {
+					File file = new File(filename);
+					if (DicomEditorFrame.createFrameSync(file) != null) {
+						windowsOpened++;
+					}
+				}
 			}
-			if (Window.getWindows().length == 0) {
+			if (windowsOpened == 0) {
 				DicomEditorFrame frame = new DicomEditorFrame();
 				frame.setVisible(true);
 			}
