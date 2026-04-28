@@ -30,9 +30,10 @@
 		<maven.compiler.target>21</maven.compiler.target>
 		<maven.compiler.source>21</maven.compiler.source>
 		<dcm4che.version>5.34.3</dcm4che.version>
-		<log4j2.version>2.25.3</log4j2.version>
+		<dcm4che.version>5.34.2</dcm4che.version>
+		<log4j2.version>2.25.4</log4j2.version>
 		<slf4j.version>1.7.5</slf4j.version>
-		<flatlaf.version>3.7</flatlaf.version>
+		<flatlaf.version>3.7.1</flatlaf.version>
 		<utils.version>[2.0.0,3.0.0)</utils.version>
 	</properties>
 
@@ -95,7 +96,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
+				<version>3.15.0</version>
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
@@ -104,7 +105,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.1</version>
+				<version>3.5.0</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -118,7 +119,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.10.0</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -138,7 +139,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.4.0</version>
+				<version>2.7.1</version>
 				<executions>
 					<execution>
 						<id>download-licenses</id>
