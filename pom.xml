@@ -32,7 +32,7 @@
 		<dcm4che.version>5.34.2</dcm4che.version>
 		<log4j2.version>2.25.4</log4j2.version>
 		<slf4j.version>1.7.5</slf4j.version>
-		<flatlaf.version>3.7</flatlaf.version>
+		<flatlaf.version>3.7.1</flatlaf.version>
 		<utils.version>[2.0.0,3.0.0)</utils.version>
 	</properties>
 
